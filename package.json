@@ -1,9 +1,12 @@
 {
   "name": "line-us",
   "version": "0.0.1",
-  "description": "",
+  "description": "A library for accessing Line-us drawing robots via Node.js and the browser.",
   "main": "src/LineUs.js",
   "scripts": {
+    "bundle": "npm run umd && npm run minify",
+    "umd": "browserify src/LineUs.js --standalone LineUs -o ./dist/line-us.js",
+    "minify": "npx terser --compress --mangle -o ./dist/line-us.min.js ./dist/line-us.js",
     "pretest": "prettier --write src/*.js"
   },
   "files": [
@@ -30,6 +33,8 @@
     "ws": "^6.1.2"
   },
   "devDependencies": {
+    "browserify": "^16.2.3",
+    "terser": "^3.13.1",
     "prettier": "1.13.6"
   },
   "prettier": {
