@@ -1,0 +1,41 @@
+{
+  "name": "line-us",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/LineUs.js",
+  "scripts": {
+    "pretest": "prettier --write src/*.js"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "author": {
+    "name": "Brian Boucheron",
+    "email": "brian@boucheron.org",
+    "url": "https://boucheron.org/brian"
+  },
+  "keywords": [
+    "lineus",
+    "line-us",
+    "plotter",
+    "drawing"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "isomorphic-ws": "^4.0.1",
+    "lowercase-keys": "^1.0.1",
+    "nanobus": "^4.4.0",
+    "p-event": "^2.1.0",
+    "p-queue": "^3.0.0",
+    "ws": "^6.1.2"
+  },
+  "devDependencies": {
+    "prettier": "1.13.6"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "arrowParens": "always"
+  }
+}
