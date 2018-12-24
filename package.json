@@ -1,5 +1,5 @@
 {
-  "name": "line-us",
+  "name": "@beardicus/line-us",
   "version": "0.0.1",
   "description": "A library for accessing Line-us drawing robots via Node.js and the browser.",
   "main": "src/LineUs.js",
@@ -9,6 +9,14 @@
     "minify": "npx terser --compress --mangle -o ./dist/line-us.min.js ./dist/line-us.js",
     "pretest": "prettier --write src/*.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beardicus/line-us.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beardicus/line-us/issues"
+  },
+  "homepage": "https://github.com/beardicus/line-us#readme",
   "files": [
     "dist/*"
   ],
