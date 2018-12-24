@@ -126,7 +126,7 @@ Sets the pen down.
 
 ### `.moveTo({xy})`
 
-Moves the arm to the coordinates specified, lifting the arm first if necessary.
+Moves the arm to the coordinates specified, lifting the pen first if necessary.
 
 #### Parameters
 
@@ -143,7 +143,7 @@ You may specify one axis or both. Capitalization of the object keys does not mat
 
 ### `.lineTo({xy})`
 
-Draws a line to the coordinates specified, setting the arm down first if necessary.
+Draws a line to the coordinates specified, setting the pen down first if necessary.
 
 #### Parameters
 
@@ -218,7 +218,7 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 }
 ```
 
-It will always have all three coordinates, even if the command that triggered the event sent changes to only one or two. The coordinate emitted will by the machine's position _when it finishes the current command_. It is not the machine's immediate position.
+It will always have all three coordinates, even if the command that triggered the event used only one or two. The coordinate emitted will by the machine's position _when it finishes the current command_. It is not the machine's immediate position.
 
 ## Roadmap
 
