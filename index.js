@@ -4,8 +4,8 @@ const pEvent = require('p-event')
 const Nanobus = require('nanobus')
 const lowercaseKeys = require('lowercase-keys')
 
-const serialize = require('./serialize.js')
-const deserialize = require('./deserialize.js')
+const serialize = require('./lib/serialize.js')
+const deserialize = require('./lib/deserialize.js')
 
 class LineUs extends Nanobus {
   constructor(opts) {
