@@ -30,17 +30,17 @@ Install via npm:
 $ npm install @beardicus/line-us
 ```
 
-A prebuilt browser version is also available via the unpkg CDN (TODO):
+A prebuilt browser version is also available via the [unpkg](https://unpkg.com/) CDN:
 
 ```html
-<script></script>
+<script type="text/javascript" src="https://unpkg.com/@beardicus/line-us/dist/line-us.min.js"></script>
 ```
 
 ## Usage Basics
 
 ### `LineUs = require('@beardicus/line-us')`
 
-Import the LineUs class.
+Import the LineUs class. If you're using the prebuilt browser version in a `<script>` tag you should skip this.
 
 ### `bot = new LineUs({opts})`
 
@@ -80,11 +80,11 @@ Accepts a single object that will be serialized into G-code. For example:
 
 ```js
 {
-    g: 'G01',
-    params: {
-        x: 1000
-        y: 900
-    }
+  g: 'G01',
+  params: {
+    x: 1000
+    y: 900
+  }
 }
 ```
 
@@ -212,9 +212,9 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 
 ```js
 {
-    x: 1000,
-    y: 1000,
-    z: 1000
+  x: 1000,
+  y: 1000,
+  z: 1000
 }
 ```
 
