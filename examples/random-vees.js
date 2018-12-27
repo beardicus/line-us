@@ -1,30 +1,25 @@
 const LineUs = require('../index.js')
 const bot = new LineUs()
 
-let lines = []
-
-for (i = 0; i < 10; i++) {
-  lines.push([randoPoint(), randoPoint(), randoPoint()])
-}
+const count = 10
 
 bot.on('connected', async () => {
-  let commands = lines.map((line) => {
-    bot.moveTo(line[0])
-    bot.lineTo(line[1])
-    bot.lineTo(line[2])
-  })
-  commands.push(bot.home())
+  for (i = 0; i < count; i++) {
+    bot.moveTo(randomPoint())
+    bot.lineTo(randomPoint())
+    bot.lineTo(randomPoint())
+  }
 
-  await Promise.all(commands)
+  await bot.home()
 
   console.log('done!')
   process.exit(0)
 })
 
-function randoPoint() {
-  return { x: randoNum(1125), y: randoNum(2000) }
+function randomPoint() {
+  return { x: randomNum(1125), y: randomNum(2000) }
 }
 
-function randoNum(limit) {
+function randomNum(limit) {
   return Math.random() * limit
 }
