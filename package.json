@@ -4,10 +4,10 @@
   "description": "A library for accessing Line-us drawing robots via Node.js and the browser.",
   "main": "index.js",
   "scripts": {
-    "bundle": "rm -r dist && npm run umd && npm run minify",
-    "umd": "browserify index.js --standalone LineUs -o dist/line-us.js",
-    "minify": "npx terser --compress --mangle -o dist/line-us.min.js dist/line-us.js",
-    "pretest": "prettier --write index.js lib/*.js"
+    "bundle": "npm run umd && npm run minify",
+    "umd": "browserify -s LineUs -e ./ -o dist/line-us.js",
+    "minify": "minify dist/line-us.js -o dist/line-us.min.js",
+    "pretest": "prettier --write lib/*.js"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,8 @@
     "lineus",
     "line-us",
     "plotter",
-    "drawing"
+    "drawing",
+    "art"
   ],
   "license": "MIT",
   "dependencies": {
@@ -42,9 +43,10 @@
     "ws": "^6.1.2"
   },
   "devDependencies": {
+    "babel-minify": "^0.5.0",
     "browserify": "^16.2.3",
-    "terser": "^3.13.1",
-    "prettier": "1.13.6"
+    "prettier": "1.13.6",
+    "tap": "^12.1.1"
   },
   "prettier": {
     "semi": false,
