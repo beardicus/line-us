@@ -160,7 +160,7 @@ You may specify one axis or both. Capitalization of the object keys does not mat
 
 ### `.home()`
 
-Sends the machine to the home position at machine coordinates `{ x: 1000, y: 1000 }`.
+Lifts the pen up and moves to the home position at machine coordinates `{ x: 1000, y: 1000}`.
 
 ## Queue Control
 
