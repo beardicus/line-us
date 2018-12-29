@@ -1,6 +1,6 @@
 # @beardicus/line-us
 
-A JavaScript library for controlling the [Line-us](https://line-us.com) drawing robot via its websocket interface. Works in both Node.js and the browser. Work in progress.
+A JavaScript library for controlling the [Line-us](https://line-us.com) drawing robot via its WebSocket interface. Works in both Node.js and the browser. Work in progress.
 
 ## Example
 
@@ -9,18 +9,27 @@ const LineUs = require('@beardicus/line-us')
 const bot = new LineUs()
 
 bot.on('connected', async () => {
-  const commands = [
-    // draw an 'X' and go home
-    bot.moveTo({ x: 1000, y: 200 }),
-    bot.lineTo({ x: 1400, y: -200 }),
-    bot.moveTo({ x: 1400, y: 200 }),
-    bot.lineTo({ x: 1000, y: -200 }),
-    bot.home(),
-  ]
-  await Promise.all(commands)
-  console.log('done!')
+  // draw an 'X'
+  bot.moveTo({ x: 1000, y: 200 })
+  bot.lineTo({ x: 1400, y: -200 })
+  bot.moveTo({ x: 1400, y: 200 })
+  bot.lineTo({ x: 1000, y: -200 })
+
+  // wait for home
+  await bot.home()
+  console.log(`job's done!`)
 })
 ```
+
+## Contents
+
+- [Installation](#installation)
+- [Setup](#setup)
+- [Communication](#communication)
+- [Movement](#movement)
+- [Configuration](#configuration)
+- [Events](#events)
+- [Roadmap](#roadmap)
 
 ## Installation
 
@@ -36,15 +45,17 @@ A prebuilt browser version is also available via the [unpkg](https://unpkg.com/)
 <script type="text/javascript" src="https://unpkg.com/@beardicus/line-us/dist/line-us.min.js"></script>
 ```
 
-## Usage Basics
+## Setup
+
+The code in this section is used to set up and configure a new `LineUs` instance.
 
 ### `LineUs = require('@beardicus/line-us')`
 
-Import the LineUs class. If you're using the prebuilt browser version in a `<script>` tag you should skip this.
+Imports the `LineUs` class. If you're using the prebuilt browser version of the library (using a `<script>` tag) you should skip this, as there will already be a global `LineUs` class available.
 
 ### `bot = new LineUs({opts})`
 
-Create a `LineUs` instance. Optionally pass in an object with any of the following options:
+Create a `LineUs` instance. Optionally, pass in an object to set options:
 
 ```js
 {
@@ -54,17 +65,19 @@ Create a `LineUs` instance. Optionally pass in an object with any of the followi
 }
 ```
 
-All arguments are optional. The default values are shown above.
+**Parameters:** all are optional. The default values are shown above.
 
-#### Options
+- **`url`**: (optional) a string that contains the websocket address to connect to. **Default is `ws://line-us.local`** which is the default address of Line-us machines
+- **`autoConnect`**: (optional) a boolean, if true will automatically attempt to connect to the websocket. **Defaults to `true`**
+- **`autoStart`**: (optional) a boolean, if true the queue will be started automatically upon connection to the websocket. **Defaults to `true`**. See [Queue Control](#queue-control) for more information on the command queue.
 
-- `url`: (optional) the websocket address to connect to.
-- `autoConnect`: (optional) when `true` LineUs will automatically connect to the websocket upon creation.
-- `autoStart`: (optional) when `true` the queue will be started automatically upon connection.
+## Communication
+
+This library uses a websocket connection to communicate with your Line-us machine. The commands in this section control the websocket connection and allow you send messages to your machine.
 
 ### `.connect()`
 
-Connects to the machine's websocket. This is called automatically unless specified `autoConnect: false` when creating your instance.
+Connects to the Line-us machine's websocket. This is done automatically unless `autoConnect` is set to `false` when creating the `LineUs` instance.
 
 ### `.disconnect()`
 
@@ -72,11 +85,11 @@ Closes the websocket connection and stops the queue.
 
 ### `.send({cmd})`
 
-Send a command to the machine. You probably don't want to use this, and should instead use the commands listed in the [Movement Commands](#movement-commands) section to interact with the machine.
+Sends a command to the machine, first buffering it in the queue if necessary.
 
-#### Parameters
+You probably don't want to use this directly, and should instead use the commands listed in the [Movement](#movement) and [Configuration](#configuration) sections to interact with the machine.
 
-Accepts a single object that will be serialized into G-code. For example:
+**Parameters:** accepts a single object that will be serialized into G-code. For example:
 
 ```js
 {
@@ -88,85 +101,130 @@ Accepts a single object that will be serialized into G-code. For example:
 }
 ```
 
-- `g`: (required) the G-code.
-- `params`: (optional) an object with parameters that will follow the `g` code.
+- **`g`**: (required) the G-code command
+- **`params`**: (optional) an object with any parameters the G-code requires
 
-All G-codes and parameter keys are forced to uppercase (though I don't think the Line-us machine cares). Parameter values are not enclosed in quotes but probably should be (TODO). The example above will be serialized into:
+All G-codes and parameter keys (`x` and `y` in the example above) are forced to uppercase (though the Line-us machine doesn't seem to care). The example above would be serialized into:
 
 ```
 G01 X1000 Y900
 ```
 
-Parameter order is not guaranteed.
-
-#### Returns
-
-All commands that are sent to the machine return a promise. When the machine sends a response the promise will resolve into an object representing the parsed response:
+**Returns:** all commands sent to the Line-us websocket will return a promise that resolves when the machine responds to the command. The value returned will be the machine's response parsed into an object such as the following:
 
 ```js
 {
   type: 'ok',
   data: {
-    X: '1000',
-    Y: '1000',
-    Z: '1000'
+    x: '350',
+    y: '500',
+    z: '0'
   }
 }
 ```
 
-## Movement Commands
+- **`type`**: a string containing `ok` or `error` (TODO check this)
+- **`data`**: an object with the message's parsed key:value pairs
 
-### `.penUp()`
+## Movement
 
-Lifts the pen up.
+The commands in this section all deal with moving the robot arm. They are all asynchronous and return a promise for the Line-us machine's eventual response. See [Movement Responses](#movement-responses) for more detailed information.
 
-### `.penDown()`
+You should be able to draw the world using just the canvas-style `.moveTo()` and `.lineTo()` commands, but the trio of `.penUp()` `.penDown` and plain `.to()` movements are also available for any situations where they may be more ergonomic to use.
 
-Sets the pen down.
+The coordinate system used is different from the Line-us machine's default "machine coordinates". If you look at the [Line-us drawing area diagram](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/LineUsDrawingArea.pdf), this library places the `{x: 0, y: 0}` origin in the upper left of the area labeled "App drawing area". Positive numbers move to the right and down just like in the browser and the canvas API. The home position in this coordinate system is `{x: 350, y: 0}`. The `z` axis behavior remains the same.
 
 ### `.moveTo({xy})`
 
 Moves the arm to the coordinates specified, lifting the pen first if necessary.
 
-#### Parameters
-
-Accepts a single object specifying the X and Y coordinates to move to:
+**Parameters:** an object with one or both of `x` and `y` coordinates specified:
 
 ```js
 {
-  x: 1000
-  y: 1000
+  x: 800
+  y: 900
 }
 ```
 
-You may specify one axis or both. Capitalization of the object keys does not matter.
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
 ### `.lineTo({xy})`
 
 Draws a line to the coordinates specified, setting the pen down first if necessary.
 
-#### Parameters
-
-Accepts a single object specifying the X and Y coordinates to draw a line to:
+**Parameters:** an object with one or both of `x` and `y` coordinates specified:
 
 ```js
 {
-  x: 1000
-  y: 1000
+  x: 800
+  y: 900
 }
 ```
 
-You may specify one axis or both. Capitalization of the object keys does not matter.
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
+
+### `.penUp()`
+
+Lifts the pen up.
+
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
+
+### `.penDown()`
+
+Sets the pen down.
+
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
+
+### `.to({xy})`
+
+Moves the arm to the coordinates specified, neither raising nor lowering the pen. Use this in combination with `.penUp()` and `.penDown()` if you find `.moveTo()` and `.lineTo()` don't suit your needs.
+
+**Parameters:** an object with one or both of `x` and `y` coordinates specified:
+
+```js
+{
+  x: 800
+  y: 900
+}
+```
+
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
 ### `.home()`
 
-Lifts the pen up and moves to the home position at machine coordinates `{ x: 1000, y: 1000}`.
+Lifts the pen up and moves to the home position at coordinates `{ x: 350, y: 0}`.
+
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
+
+### `.getPosition()`
+
+Fetches the machine's current coordinates. Because the command might end up buffered in the queue, you should listen for [`coordinate` events](#oncoordinates-obj) for immediate coordinate updates as they happen.
+
+**Returns:** A promise. See [Movement Responses](#movement-responses) for details.
+
+### Movement Responses
+
+All movement commands return a promise that resolves into the Line-us machine's response. The response will be parsed into an object and will reflect the machine's new coordinates:
+
+```js
+{
+  type: 'ok',
+  data: {
+    x: '350',
+    y: '500',
+    z: '0'
+  }
+}
+```
+
+More details about the returned message object can be found in the [`.send()`](#sendcmd) command documentation.
 
 ## Queue Control
 
-The Line-us machine has no buffer, and will only acknowledge one command at a time. `line-us` uses a queue to buffer commands and ensure that only one is sent at a time.
+The Line-us machine has no buffer, and will only acknowledge one command at a time. This library uses a queue to buffer commands and ensure that only one is sent at a time.
 
-Before starting the queue you could pre-fill it with all the commands for a drawing, or you may want to start it right away and use it just as a buffer while you send commands in "real-time". You can pause, resume, and clear the queue as well.
+Before starting the queue you could pre-fill it with all the commands for a drawing, or you may want to start it right away and use it just as a buffer while you send commands in "real-time". You can pause, resume, and clear the queue.
 
 ### `.start()`
 
@@ -174,11 +232,11 @@ Starts the queue. Any messages in the queue will start sending to the machine. I
 
 ### `.pause()`
 
-Temporarily pause the queue. The current message will finish sending and the machine will finish executing the move, so there can be a delay between pausing and the machine ceasing movement.
+Temporarily pause the queue. The current message will finish sending and the machine will finish executing the move, so there may be a delay between pausing and the actual cessation of movement.
 
 ### `.resume()`
 
-Unpause the queue and start sending messages where it left off.
+Unpause the queue and resume sending messages where it left off.
 
 ### `.stop()`
 
@@ -188,17 +246,111 @@ Stop the queue and clear it.
 
 Clear all commands out of the queue. The queue remains in its current state with regards to being `paused` or `drawing`.
 
+## Configuration
+
+### `.info`
+
+A property which is populated with info provided by the machine's `hello` message:
+
+```js
+{
+  version: '2.0.2Beta6 Sep 14 2018 22:17:02',
+  name: 'line-us',
+  serial:'999999'
+}
+```
+
+Not available until the websocket is connected.
+
+### `.getCapabilities()`
+
+Fetches information about the machine's wifi connection mode and machine name.
+
+**Returns:** a promise that resolves into the machine's response:
+
+```js
+{
+  type: 'ok',
+    data: {
+      CONNECTMODE: 'ST',
+      MACHINENAME: 'line-us'
+  }
+}
+```
+
+See the official [Line-us G-code specification](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/GCodeSpec.pdf) for details on the possible values.
+
+### `.getDiagnostics()`
+
+Fetches extensive diagnostic information about the Line-us machine.
+
+**Returns:** a promise that resolves into the machine's response:
+
+```js
+{
+  type: 'ok',
+  data: {
+    ChipID: '990192',
+    WifiMode: '1',
+    WifiModeSet: '0',
+    WifisConfigured: '2',
+    MemDraw: '0',
+    Gestures: '0',
+    name: 'line-us',
+    mac: '00:BE:EF:C0:FF:EE',
+    FlashChipID: '1458415',
+    FlashChipMode: '0',
+    FlashChipSpeed: '40000000',
+    FreeHeap: '26280',
+    ResetReason: 'External System',
+    FSUsed: '1255',
+    FSTotal: '1953282',
+    FSFree: '1952027',
+    FSPercent: '0',
+    FS: '/cal-30;/key-344; ',
+    Serial: 'cd-pAd',
+    Cal: '-19.70022,9.099869,-9.200562'
+  }
+}
+```
+
+Currently, the meaning of these values is left to you, dear user, as the official [specification](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/GCodeSpec.pdf) document has no further details on this command.
+
+### `.setCalibration()`
+
+Currently unimplemented.
+
+### `.clearCalibration()`
+
+Currently unimplemented.
+
+### `.setMachineName()`
+
+Currently unimplemented.
+
+### `.getMachineName()`
+
+Currently unimplemented.
+
+### `.saveWifiNetwork()`
+
+Currently unimplemented.
+
+### `.getWifiNetworks()`
+
+Currently unimplemented.
+
 ## Events
 
 ### `.on('state', (string) => {})`
 
-The `state` event fires whenever there is a state change. It passes along the new state as one of the following strings:
+The `state` event fires whenever there is a state change. It passes the new state as one of the following strings:
 
-- `disconnected`: the websocket is not connected, either because we're just starting up or because the connection was lost or closed.
-- `connecting`: a websocket connection is being established
-- `connected`: the websocket is connected to the Line-us machine and has recieved its initial `hello` message.
-- `paused`: the queue is paused and no messages will be sent to the machine.
-- `drawing`: the queue is started and messages are being sent to the machine.
+- **`disconnected`**: the websocket is not connected, either because we're just starting up or because the connection was lost or closed.
+- **`connecting`**: a websocket connection is being established
+- **`connected`**: the websocket is connected to the Line-us machine and has received the initial `hello` message.
+- **`paused`**: the queue is paused and no messages will be sent to the machine.
+- **`drawing`**: the queue is started and messages are being sent to the machine.
 
 > **Note:** all the states emitted under the `state` event are also emitted under their own name. So if you want to listen only for the `connected` event, for example, you may do `.on('connected', () => {})`.
 
@@ -206,26 +358,24 @@ The `state` event fires whenever there is a state change. It passes along the ne
 
 Emits errors from the websocket or Line-us machine.
 
-### `.on('coordinates', (obj) => {})`
+#### `.on('coordinates', (obj) => {})`
 
 Emits a coordinate object every time the Line-us machine replies with its current coordinates. The object will be in the following form:
 
 ```js
 {
-  x: 1000,
-  y: 1000,
+  x: 800,
+  y: 150,
   z: 1000
 }
 ```
 
-It will always have all three coordinates, even if the command that triggered the event used only one or two. The coordinate emitted will by the machine's position _when it finishes the current command_. It is not the machine's immediate position.
+It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will by the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
 
 ## Roadmap
 
-- Optionally translate from machine coordinates to a more standard system.
 - Competent error handling.
 - Competent input checking.
 - Actual tests.
 - Simple progress info using a naive queue size / total.
 - Smarter progress info with percentage and time estimates based on "speed" setting and analyzing actual paths.
-- `preview` method that will translate the queue into a canvas drawing or SVG `polyline`s.
