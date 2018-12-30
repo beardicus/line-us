@@ -318,27 +318,49 @@ Currently, the meaning of these values is left to you, dear user, as the officia
 
 ### `.setCalibration()`
 
-Currently unimplemented.
+Sets the calibration of the Line-us machine. You must manually move the arm to its calibration point before running this command. See the [Line-us help page](https://www.line-us.com/help.html#10) for more information on how to calibrate your machine.
+
+**Returns:** a promise that resolves into the machine's response.
 
 ### `.clearCalibration()`
 
-Currently unimplemented.
+Clears the current calibration. You can inspect your calibration data using the [`.getDiagnostics()`](#getdiagnostics) command:
 
-### `.setMachineName()`
+```js
+response = await.bot.getDiagnostics()
+calibration = response.data.Cal
+```
 
-Currently unimplemented.
+**Returns:** a promise that resolves into the machine's response.
+
+### `.setMachineName('name')`
+
+Sets the LineUs machine's name to the specified string.
+
+**Returns:** a promise that resolves into the machine's response.
 
 ### `.getMachineName()`
 
-Currently unimplemented.
+Gets the LineUs machine's current name.
 
-### `.saveWifiNetwork()`
+**Returns:** a promise that resolves into the machine's response.
 
-Currently unimplemented.
+### `.saveWifiNetwork({ssid, password})`
 
-### `.getWifiNetworks()`
+Saves a new wifi network to the machine.
 
-Currently unimplemented.
+**Parameters:**
+
+- **`ssid`**: (required) the wifi network's SSID name
+- **`password`**: (optional) the wifi network's password if needed
+
+**Returns:** a promise that resolves into the machine's response.
+
+### `.listWifiNetworks()`
+
+Lists the wifi networks currently saved on the machine.
+
+**Returns:** a promise that resolves into the machine's response.
 
 ## Events
 
