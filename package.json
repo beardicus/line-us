@@ -31,7 +31,11 @@
     "line-us",
     "plotter",
     "drawing",
-    "art"
+    "art",
+    "robot",
+    "robotics",
+    "hardware",
+    "websocket"
   ],
   "license": "MIT",
   "dependencies": {
