@@ -29,7 +29,7 @@ bot.on('connected', async () => {
 - [Movement](#movement)
 - [Configuration](#configuration)
 - [Events](#events)
-- [Roadmap](#roadmap)
+- [TODO](#todo)
 
 ## Installation
 
@@ -123,7 +123,7 @@ G01 X1000 Y900
 }
 ```
 
-- **`type`**: a string containing `ok` or `error` (TODO check this)
+- **`type`**: a string containing `ok` or `error`
 - **`data`**: an object with the message's parsed key:value pairs
 
 ## Movement
@@ -394,10 +394,10 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 
 It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will by the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
 
-## Roadmap
+## TODO
 
-- Competent error handling.
-- Competent input checking.
-- Actual tests.
-- Simple progress info using a naive queue size / total.
-- Smarter progress info with percentage and time estimates based on "speed" setting and analyzing actual paths.
+[ ] Better error handling
+[ ] Validate inputs
+[ ] Tests
+[ ] Emit simple progress updates using queue size / total
+[ ] Emit smarter progress updates with time estimates
