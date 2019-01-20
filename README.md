@@ -1,6 +1,6 @@
 # @beardicus/line-us
 
-A JavaScript library for controlling the [Line-us](https://line-us.com) drawing robot via its WebSocket interface. Works in both Node.js and the browser. Work in progress.
+A JavaScript library for controlling the [Line-us](https://line-us.com) drawing robot via its websocket interface. Works in both Node.js and the browser.
 
 ## Example
 
@@ -10,10 +10,10 @@ const bot = new LineUs()
 
 bot.on('connected', async () => {
   // draw an 'X'
-  bot.moveTo({ x: 1000, y: 200 })
-  bot.lineTo({ x: 1400, y: -200 })
-  bot.moveTo({ x: 1400, y: 200 })
-  bot.lineTo({ x: 1000, y: -200 })
+  bot.moveTo({ x: 0, y: 0 })
+  bot.lineTo({ x: 500, y: 500 })
+  bot.moveTo({ x: 500, y: 0 })
+  bot.lineTo({ x: 0, y: 500 })
 
   // wait for home
   await bot.home()
@@ -67,7 +67,7 @@ Create a `LineUs` instance. Optionally, pass in an object to set options:
 
 **Parameters:** all are optional. The default values are shown above.
 
-- **`url`**: (optional) a string that contains the websocket address to connect to. **Default is `ws://line-us.local`** which is the default address of Line-us machines
+- **`url`**: (optional) a string that contains the websocket address to connect to. **Default is `ws://line-us.local`** which is the default name and address of all Line-us machines
 - **`autoConnect`**: (optional) a boolean, if true will automatically attempt to connect to the websocket. **Defaults to `true`**
 - **`autoStart`**: (optional) a boolean, if true the queue will be started automatically upon connection to the websocket. **Defaults to `true`**. See [Queue Control](#queue-control) for more information on the command queue.
 
@@ -95,7 +95,7 @@ You probably don't want to use this directly, and should instead use the command
 {
   g: 'G01',
   params: {
-    x: 1000
+    x: 1000,
     y: 900
   }
 }
@@ -110,29 +110,25 @@ All G-codes and parameter keys (`x` and `y` in the example above) are forced to 
 G01 X1000 Y900
 ```
 
-**Returns:** all commands sent to the Line-us websocket will return a promise that resolves when the machine responds to the command. The value returned will be the machine's response parsed into an object such as the following:
+**Returns:** all commands sent to the Line-us websocket will return a promise that resolves when we receive a response. The value will be the machine's response parsed into an object such as the following:
 
 ```js
 {
-  type: 'ok',
-  data: {
-    x: '350',
-    y: '500',
-    z: '0'
-  }
+  x: '350',
+  y: '500',
+  z: '0'
 }
 ```
 
-- **`type`**: a string containing `ok` or `error`
-- **`data`**: an object with the message's parsed key:value pairs
+The exact data returned depends on the command being responded to.
 
 ## Movement
 
 The commands in this section all deal with moving the robot arm. They are all asynchronous and return a promise for the Line-us machine's eventual response. See [Movement Responses](#movement-responses) for more detailed information.
 
-You should be able to draw the world using just the canvas-style `.moveTo()` and `.lineTo()` commands, but the trio of `.penUp()` `.penDown` and plain `.to()` movements are also available for any situations where they may be more ergonomic to use.
+You should be able to draw a masterpiece using just the canvas-style `.moveTo()` and `.lineTo()` commands, but the trio of `.penUp()` `.penDown` and plain `.to()` movements are also available for any situations where they may be more ergonomic to use.
 
-The coordinate system used is different from the Line-us machine's default "machine coordinates". If you look at the [Line-us drawing area diagram](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/LineUsDrawingArea.pdf), this library places the `{x: 0, y: 0}` origin in the upper left of the area labeled "App drawing area". Positive numbers move to the right and down just like in the browser and the canvas API. The home position in this coordinate system is `{x: 350, y: 0}`. The `z` axis behavior remains the same.
+The coordinate system used is different from the Line-us machine's default "machine coordinates". If you look at the [Line-us drawing area diagram](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/LineUsDrawingArea.pdf), this library places the `{x: 0, y: 0}` origin in the upper left of the area labeled "App drawing area". Positive numbers move to the right and down just like in the browser and the canvas API. The machine's home position in this coordinate system is `{x: 350, y: 0}`. The `z` axis behavior remains the same.
 
 ### `.moveTo({xy})`
 
@@ -142,7 +138,7 @@ Moves the arm to the coordinates specified, lifting the pen first if necessary.
 
 ```js
 {
-  x: 800
+  x: 800,
   y: 900
 }
 ```
@@ -157,7 +153,7 @@ Draws a line to the coordinates specified, setting the pen down first if necessa
 
 ```js
 {
-  x: 800
+  x: 800,
   y: 900
 }
 ```
@@ -176,16 +172,19 @@ Sets the pen down.
 
 **Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
-### `.to({xy})`
+### `.to({xyz})`
 
-Moves the arm to the coordinates specified, neither raising nor lowering the pen. Use this in combination with `.penUp()` and `.penDown()` if you find `.moveTo()` and `.lineTo()` don't suit your needs.
+Moves the arm to the coordinates specified. Use this in combination with `.penUp()` and `.penDown()` if you find `.moveTo()` and `.lineTo()` don't suit your needs.
 
-**Parameters:** an object with one or both of `x` and `y` coordinates specified:
+> **Note:** You may also specify the `z` coordinate here, for manual height control, but it's not recommended. The machine will accept anything from 0–1000 for the `z` axis. This library considers any `z` coordinate < 500 to be 'down'. All other movement commands use `z: 0` and `z: 1000` exclusively when changing the pen height, so you could see unintended behaviors mixing the two strategies.
+
+**Parameters:** an object with at least one of `x`, `y`, or `z` coordinates specified:
 
 ```js
 {
-  x: 800
-  y: 900
+  x: 800,
+  y: 900,
+  z: 0
 }
 ```
 
@@ -199,7 +198,7 @@ Lifts the pen up and moves to the home position at coordinates `{ x: 350, y: 0}`
 
 ### `.getPosition()`
 
-Fetches the machine's current coordinates. Because the command might end up buffered in the queue, you should listen for [`coordinate` events](#oncoordinates-obj) for immediate coordinate updates as they happen.
+Fetches the machine's current coordinates. Because this command might end up buffered in the queue, you should listen for [`coordinate` events](#oncoordinates-obj) for immediate machine coordinate updates as they happen.
 
 **Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
@@ -209,12 +208,9 @@ All movement commands return a promise that resolves into the Line-us machine's 
 
 ```js
 {
-  type: 'ok',
-  data: {
-    x: '350',
-    y: '500',
-    z: '0'
-  }
+  x: '350',
+  y: '500',
+  z: '0'
 }
 ```
 
@@ -248,9 +244,11 @@ Clear all commands out of the queue. The queue remains in its current state with
 
 ## Configuration
 
+These commands get information from the machine, and set various configuration options.
+
 ### `.info`
 
-A property which is populated with info provided by the machine's `hello` message:
+A property of the `Line-us` instance which is populated with info provided by the machine's `hello` message:
 
 ```js
 {
@@ -270,11 +268,8 @@ Fetches information about the machine's wifi connection mode and machine name.
 
 ```js
 {
-  type: 'ok',
-    data: {
-      CONNECTMODE: 'ST',
-      MACHINENAME: 'line-us'
-  }
+  CONNECTMODE: 'ST',
+  MACHINENAME: 'line-us'
 }
 ```
 
@@ -288,33 +283,30 @@ Fetches extensive diagnostic information about the Line-us machine.
 
 ```js
 {
-  type: 'ok',
-  data: {
-    ChipID: '990192',
-    WifiMode: '1',
-    WifiModeSet: '0',
-    WifisConfigured: '2',
-    MemDraw: '0',
-    Gestures: '0',
-    name: 'line-us',
-    mac: '00:BE:EF:C0:FF:EE',
-    FlashChipID: '1458415',
-    FlashChipMode: '0',
-    FlashChipSpeed: '40000000',
-    FreeHeap: '26280',
-    ResetReason: 'External System',
-    FSUsed: '1255',
-    FSTotal: '1953282',
-    FSFree: '1952027',
-    FSPercent: '0',
-    FS: '/cal-30;/key-344; ',
-    Serial: 'cd-pAd',
-    Cal: '-19.70022,9.099869,-9.200562'
-  }
+  ChipID: '990192',
+  WifiMode: '1',
+  WifiModeSet: '0',
+  WifisConfigured: '2',
+  MemDraw: '0',
+  Gestures: '0',
+  name: 'line-us',
+  mac: '00:BE:EF:C0:FF:EE',
+  FlashChipID: '1458415',
+  FlashChipMode: '0',
+  FlashChipSpeed: '40000000',
+  FreeHeap: '26280',
+  ResetReason: 'External System',
+  FSUsed: '1255',
+  FSTotal: '1953282',
+  FSFree: '1952027',
+  FSPercent: '0',
+  FS: '/cal-30;/key-344; ',
+  Serial: 'cd-pAd',
+  Cal: '-19.70022,9.099869,-9.200562'
 }
 ```
 
-Currently, the meaning of these values is left to you, dear user, as the official [specification](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/GCodeSpec.pdf) document has no further details on this command.
+Currently, determining the meaning of these values is left to you, dear user, as the official [specification](https://github.com/Line-us/Line-us-Programming/blob/master/Documentation/GCodeSpec.pdf) has no further details on this command.
 
 ### `.setCalibration()`
 
@@ -327,8 +319,8 @@ Sets the calibration of the Line-us machine. You must manually move the arm to i
 Clears the current calibration. You can inspect your calibration data using the [`.getDiagnostics()`](#getdiagnostics) command:
 
 ```js
-response = await.bot.getDiagnostics()
-calibration = response.data.Cal
+response = await bot.getDiagnostics()
+calibration = response.Cal
 ```
 
 **Returns:** a promise that resolves into the machine's response.
@@ -362,6 +354,16 @@ Lists the wifi networks currently saved on the machine.
 
 **Returns:** a promise that resolves into the machine's response.
 
+### `.forgetWifiNetwork({ssid})`
+
+Forgets the specified wifi network.
+
+**Parameters:**
+
+- **`ssid`**: (required) the SSID if the network to be forgotten. `*` may be used to instruct the machine to forget all saved networks.
+
+**Returns:** a promise that resolves into the machine's response.
+
 ## Events
 
 ### `.on('state', (string) => {})`
@@ -392,12 +394,14 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 }
 ```
 
-It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will by the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
+It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will be the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
 
 ## TODO
 
-[ ] Better error handling
-[ ] Validate inputs
-[ ] Tests
+[x] Better error handling
+[x] Validate inputs
+[x] Tests
+[ ] Functional tests
+[ ] Fix browser tests
 [ ] Emit simple progress updates using queue size / total
 [ ] Emit smarter progress updates with time estimates
