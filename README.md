@@ -398,10 +398,10 @@ It will always have all three coordinates, even if the command that triggered th
 
 ## TODO
 
-[x] Better error handling
-[x] Validate inputs
-[x] Tests
-[ ] Functional tests
-[ ] Fix browser tests
-[ ] Emit simple progress updates using queue size / total
-[ ] Emit smarter progress updates with time estimates
+- [x] Better error handling
+- [x] Validate inputs
+- [x] Tests
+- [ ] Functional tests
+- [ ] Fix browser tests
+- [ ] Emit simple progress updates using queue size / total
+- [ ] Emit smarter progress updates with time estimates
