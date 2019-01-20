@@ -7,6 +7,7 @@
     "bundle": "npm run umd && npm run minify",
     "umd": "browserify --debug -s LineUs -e ./ -o dist/line-us.js",
     "minify": "minify dist/line-us.js -o dist/line-us.min.js",
+    "prepublish": "npm run bundle",
     "pretest": "prettier --write lib/*.js test/*.js",
     "test": "tap test -j 8 -R spec",
     "test-browser": "browserify test/* | smokestack | tap-mocha-reporter spec"
@@ -54,6 +55,7 @@
     "browserify": "^16.2.3",
     "prettier": "1.13.6",
     "smokestack": "^3.6.0",
+    "np": "^3.1.0",
     "tap": "^12.1.1",
     "tap-mocha-reporter": "^3.0.7"
   },
