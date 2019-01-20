@@ -7,10 +7,11 @@
     "bundle": "npm run umd && npm run minify",
     "umd": "browserify --debug -s LineUs -e ./ -o dist/line-us.js",
     "minify": "minify dist/line-us.js -o dist/line-us.min.js",
-    "prepublish": "npm run bundle",
+    "prepare": "npm run bundle",
     "pretest": "prettier --write lib/*.js test/*.js",
     "test": "tap test -j 8 -R spec",
-    "test-browser": "browserify test/* | smokestack | tap-mocha-reporter spec"
+    "test-browser": "browserify test/* | smokestack | tap-mocha-reporter spec",
+    "release": "np"
   },
   "repository": {
     "type": "git",
