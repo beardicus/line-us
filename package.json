@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "bundle": "npm run umd && npm run minify",
-    "umd": "browserify -s LineUs -e ./ -o dist/line-us.js",
+    "umd": "browserify --debug -s LineUs -e ./ -o dist/line-us.js",
     "minify": "minify dist/line-us.js -o dist/line-us.min.js",
-    "pretest": "prettier --write lib/*.js"
+    "pretest": "prettier --write lib/*.js test/*.js",
+    "test": "tap test -j 8 -R spec",
+    "test-browser": "browserify test/* | smokestack | tap-mocha-reporter spec"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@sindresorhus/is": "^0.14.0",
     "isomorphic-ws": "^4.0.1",
     "lowercase-keys": "^1.0.1",
     "nanobus": "^4.4.0",
@@ -50,7 +53,9 @@
     "babel-minify": "^0.5.0",
     "browserify": "^16.2.3",
     "prettier": "1.13.6",
-    "tap": "^12.1.1"
+    "smokestack": "^3.6.0",
+    "tap": "^12.1.1",
+    "tap-mocha-reporter": "^3.0.7"
   },
   "prettier": {
     "semi": false,
