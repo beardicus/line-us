@@ -1,5 +1,7 @@
-require('tap').mochaGlobals()
+const tap = require('tap')
 const assert = require('assert')
+
+tap.mochaGlobals()
 
 const {
   check,

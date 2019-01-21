@@ -1,5 +1,7 @@
-require('tap').mochaGlobals()
+const tap = require('tap')
 const assert = require('assert')
+
+tap.mochaGlobals()
 
 const validate = require('../lib/validate.js')
 
@@ -162,3 +164,5 @@ describe('.wifi()', function() {
     })
   })
 })
+
+tap.end() // seems to kick the browser tests in the pants when done

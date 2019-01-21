@@ -10,7 +10,7 @@
     "prepare": "npm run bundle",
     "pretest": "prettier --write lib/*.js test/*.js",
     "test": "tap test -j 8 -R spec",
-    "test-browser": "browserify test/* | smokestack | tap-mocha-reporter spec",
+    "test-browser": "browserify test/* | tap-closer | smokestack | tap-mocha-reporter spec",
     "release": "np"
   },
   "repository": {
@@ -54,10 +54,11 @@
   "devDependencies": {
     "babel-minify": "^0.5.0",
     "browserify": "^16.2.3",
+    "np": "^3.1.0",
     "prettier": "1.13.6",
     "smokestack": "^3.6.0",
-    "np": "^3.1.0",
     "tap": "^12.1.1",
+    "tap-closer": "^1.0.0",
     "tap-mocha-reporter": "^3.0.7"
   },
   "prettier": {
