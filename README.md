@@ -198,7 +198,7 @@ Lifts the pen up and moves to the home position at coordinates `{ x: 350, y: 0}`
 
 ### `.getPosition()`
 
-Fetches the machine's current coordinates. Because this command might end up buffered in the queue, you should listen for [`coordinate` events](#oncoordinates-obj) for immediate machine coordinate updates as they happen.
+Fetches the machine's current coordinates. Because this command might end up buffered in the queue, you should instead listen for [`coordinate` events](#oncoordinates-obj) for immediate machine coordinate updates as they happen.
 
 **Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
@@ -408,7 +408,7 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 }
 ```
 
-It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will be the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
+It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates are emitted _when the machine finishes executing the current command_.
 
 ## TODO
 
