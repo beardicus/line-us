@@ -47,17 +47,17 @@
     "isomorphic-ws": "^4.0.1",
     "lowercase-keys": "^1.0.1",
     "nanobus": "^4.4.0",
-    "p-event": "^2.1.0",
+    "p-event": "^2.2.0",
     "p-queue": "^3.0.0",
-    "ws": "^6.1.2"
+    "ws": "^6.1.3"
   },
   "devDependencies": {
     "babel-minify": "^0.5.0",
     "browserify": "^16.2.3",
-    "np": "^3.1.0",
+    "np": "^4.0.2",
     "prettier": "1.13.6",
     "smokestack": "^3.6.0",
-    "tap": "^12.1.1",
+    "tap": "^12.4.0",
     "tap-closer": "^1.0.0",
     "tap-mocha-reporter": "^3.0.7"
   },
