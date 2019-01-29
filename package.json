@@ -54,7 +54,7 @@
   "devDependencies": {
     "babel-minify": "^0.5.0",
     "browserify": "^16.2.3",
-    "np": "^4.0.0",
+    "np": "^4.0.2",
     "prettier": "^1.16.1",
     "smokestack": "^3.6.0",
     "tap": "^12.4.0",
