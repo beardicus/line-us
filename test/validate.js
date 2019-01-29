@@ -108,6 +108,33 @@ describe('.cmd()', function() {
   })
 })
 
+describe('.lift()', function() {
+  const rejects = [
+    [, 'no argument'],
+    [{}, 'empty object'],
+    ['', 'a string'],
+    [1, 'numbers'],
+  ]
+
+  rejects.forEach((test) => {
+    it('throws on ' + test[1] + ': ' + JSON.stringify(test[0]), function() {
+      assert.throws(function() {
+        validate.lift(test[0])
+      }, /^TypeError/)
+    })
+  })
+
+  const accepts = [[true, 'true'], [false, 'false']]
+
+  accepts.forEach((test) => {
+    it('accepts ' + test[1] + ': ' + JSON.stringify(test[0]), function() {
+      assert.doesNotThrow(function() {
+        validate.lift(test[0])
+      })
+    })
+  })
+})
+
 describe('.name()', function() {
   const rejects = [
     [, 'no argument'],

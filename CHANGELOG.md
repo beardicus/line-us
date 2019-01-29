@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- NA
+- `.pause()` now lifts the arm by default, and returns it to the previous `z` height upon `.resume()`.
+
+### Fixed
+
+- `npm run test-browser` now finishes and exits properly.
 
 ## [1.0.0] 2019-01-20
 

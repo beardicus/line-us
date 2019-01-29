@@ -8,6 +8,7 @@ const {
   isObject,
   isNumber,
   isString,
+  isBoolean,
   hasSomeKeys,
   hasKeys,
   checkKeys,
@@ -152,6 +153,24 @@ describe('isString()', function() {
   accepts.forEach((test) => {
     it('accepts non-empty strings: ' + JSON.stringify(test), function() {
       assert.doesNotThrow(() => isString(test))
+    })
+  })
+})
+
+describe('isBoolean()', function() {
+  const rejects = ['string', {}, [], 1, 0]
+
+  rejects.forEach((test) => {
+    it('rejects non booleans: ' + JSON.stringify(test), function() {
+      assert.throws(() => isBoolean(test), /^TypeError/)
+    })
+  })
+
+  const accepts = [true, false]
+
+  accepts.forEach((test) => {
+    it('accepts booleans: ' + JSON.stringify(test), function() {
+      assert.doesNotThrow(() => isBoolean(test))
     })
   })
 })
