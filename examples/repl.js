@@ -1,5 +1,8 @@
 const readline = require('readline')
-const LineUs = require('./index.js')
+const LineUs = require('../index.js')
+
+console.log('LineUs REPL Example')
+process.stdout.write('Connecting... ')
 
 // pass your Line-us's name as an arg on the command line
 // `node repl.js my-robot-name`
@@ -14,7 +17,7 @@ const rl = readline.createInterface({
 })
 
 bot.on('connected', () => {
-  console.log('Connected')
+  console.log('done')
   rl.prompt()
 })
 
@@ -33,6 +36,8 @@ rl.on('line', async (line) => {
     case 'quit':
       quit()
     default:
+      // type in LineUs methods such as moveTo({x: 100})
+      // and they will be evaluated
       try {
         const result = await eval('bot.' + line.trim())
         console.log(result)
