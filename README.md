@@ -198,7 +198,7 @@ Lifts the pen up and moves to the home position at coordinates `{ x: 350, y: 0}`
 
 ### `.getPosition()`
 
-Fetches the machine's current coordinates. Because this command might end up buffered in the queue, you should listen for [`coordinate` events](#oncoordinates-obj) for immediate machine coordinate updates as they happen.
+Fetches the machine's current coordinates. Because this command might end up buffered in the queue, you should instead listen for [`coordinate` events](#oncoordinates-obj) for immediate machine coordinate updates as they happen.
 
 **Returns:** A promise. See [Movement Responses](#movement-responses) for details.
 
@@ -224,15 +224,29 @@ Before starting the queue you could pre-fill it with all the commands for a draw
 
 ### `.start()`
 
-Starts the queue. Any messages in the queue will start sending to the machine. If the queue is empty it will wait for commands.
+Starts the queue. Any messages in the queue will immediately start sending to the machine. If the queue is empty it will wait for commands.
 
 ### `.pause()`
 
 Temporarily pause the queue. The current message will finish sending and the machine will finish executing the move, so there may be a delay between pausing and the actual cessation of movement.
 
+By default if the current `z` height is less than 500, a `penUp()` command will be injected to lift the arm for the duration of the pause. The previous `z` height will be restored when the queue is resumed.
+
+To disable the automatic lifting of the arm during pauses, pass in a configuration object with `lift: false`:
+
+```js
+bot.pause({ lift: false })
+```
+
+**Parameters:** an optional object with the following keys:
+
+- **`lift`**: (optional) a boolean that determines if the arm should be lifted up during the pause. **Defaults to `true`**
+
+**Returns:** a promise that resolves when the queue has flushed and the machine is actually paused.
+
 ### `.resume()`
 
-Unpause the queue and resume sending messages where it left off.
+Unpause the queue and resume sending messages where it left off. Restores the `z` axis to its previous height if the arm was lifted during the pause.
 
 ### `.stop()`
 
@@ -394,7 +408,7 @@ Emits a coordinate object every time the Line-us machine replies with its curren
 }
 ```
 
-It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates emitted will be the machine's position _when it finishes executing the current command_. It is not the machine's immediate position.
+It will always have all three coordinates, even if the command that triggered the event provided only one or two. The coordinates are emitted _when the machine finishes executing the current command_.
 
 ## TODO
 
