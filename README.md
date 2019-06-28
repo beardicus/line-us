@@ -61,7 +61,8 @@ Create a `LineUs` instance. Optionally, pass in an object to set options:
 {
   url: 'ws://line-us.local',
   autoConnect: true,
-  autoStart: true
+  autoStart: true,
+  concurrency: 3
 }
 ```
 
@@ -70,6 +71,7 @@ Create a `LineUs` instance. Optionally, pass in an object to set options:
 - **`url`**: (optional) a string that contains the websocket address to connect to. **Default is `ws://line-us.local`** which is the default name and address of all Line-us machines
 - **`autoConnect`**: (optional) a boolean, if true will automatically attempt to connect to the websocket. **Defaults to `true`**
 - **`autoStart`**: (optional) a boolean, if true the queue will be started automatically upon connection to the websocket. **Defaults to `true`**. See [Queue Control](#queue-control) for more information on the command queue.
+- **`concurrency`**: (optional) a number which controls how many commands are sent to be buffered by the Line-us machine. This setting can improve performance where the network between the sender and Line-us has high latency. Note that higher values will create delays with the `pause()` command, as the Line-us will always execute the buffered commands before pausing. **Defaults to `3`**. This value enables relatively smooth operation on local Wifi networks, but you may want to increase it for poorer connections with more latency.
 
 ## Communication
 
@@ -218,9 +220,11 @@ More details about the returned message object can be found in the [`.send()`](#
 
 ## Queue Control
 
-The Line-us machine has no buffer, and will only acknowledge one command at a time. This library uses a queue to buffer commands and ensure that only one is sent at a time.
+The Line-us machine originally had no buffer, and it was recommended to only send one command at a time. As of Line-us firmware version 3.0.0 this restriction has been relaxed, and it is ok to send multiple commands at once and rely on the Line-us to buffer them.
 
-Before starting the queue you could pre-fill it with all the commands for a drawing, or you may want to start it right away and use it just as a buffer while you send commands in "real-time". You can pause, resume, and clear the queue.
+Despite this change, this library still uses a queue mechanism to optionally buffer some commands locally. The `concurrency` configuration option determines how many commands at once will be sent to the Line-us for buffering. Any commands beyond that will wait in the local queue.
+
+The queue also provides other convenient methods of controlling the progress of your drawing. Before starting the queue you could pre-fill it with all the commands for a drawing, or you may want to start it right away and use it just as a buffer while you send commands in "real-time". You can pause, resume, and clear the queue.
 
 ### `.start()`
 
@@ -228,7 +232,7 @@ Starts the queue. Any messages in the queue will immediately start sending to th
 
 ### `.pause()`
 
-Temporarily pause the queue. The current message will finish sending and the machine will finish executing the move, so there may be a delay between pausing and the actual cessation of movement.
+Temporarily pause the queue. The current message(s) will finish sending and the machine will finish executing the move, so there may be a delay between pausing and the actual cessation of movement. The delay will be greater with higher values of the `concurrency` parameter.
 
 By default if the current `z` height is less than 500, a `penUp()` command will be injected to lift the arm for the duration of the pause. The previous `z` height will be restored when the queue is resumed.
 
