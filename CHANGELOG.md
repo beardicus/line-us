@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] 2019-06-27
+
+### Added
+
+- A `concurrency` parameter has been added to the constructor, with a default value of `3`. This parameter controls how many commands can be "in flight" and buffered by the Line-us machine. Setting this to higher values can smooth out operation over unreliable or high-latency connections. The default value of `3` seems good for most local Wifi situations.
+
 ### Fixed
 
 - `.coordinates` will now be set to the home coordinates (`{x: 350, y: 0, z: 1000}`) after a connection is established, as the Line-us machine does a homing sequence as part of the connection process. Previously we would return `undefined` coordinates until after the first move.
