@@ -3,7 +3,6 @@
   "version": "2.1.0",
   "description": "A library for accessing Line-us drawing robots via Node.js and the browser.",
   "main": "index.js",
-  "type": "module",
   "exports": {
     "import": "./index.mjs",
     "require": "./index.js"
