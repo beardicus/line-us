@@ -13,6 +13,7 @@ bot.on('connected', async () => {
   await bot.home()
 
   console.log('done!')
+  await bot.disconnect()
   process.exit(0)
 })
 

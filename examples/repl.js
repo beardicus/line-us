@@ -48,12 +48,12 @@ rl.on('line', async (line) => {
   }
 })
 
-rl.on('close', () => {
+rl.on('close', async () => {
   // CTRL+D will also exit
-  quit()
+  await quit()
 })
 
-function quit() {
-  bot.disconnect()
+async function quit() {
+  await bot.disconnect()
   process.exit(0)
 }

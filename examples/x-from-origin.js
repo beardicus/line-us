@@ -14,6 +14,7 @@ bot.on('connected', async () => {
   await Promise.all(commands)
 
   console.log('done!')
+  await bot.disconnect()
   process.exit(0)
 })
 

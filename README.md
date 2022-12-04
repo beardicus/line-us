@@ -42,7 +42,10 @@ $ npm install @beardicus/line-us
 A prebuilt browser version is also available via the [unpkg](https://unpkg.com/) CDN:
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/@beardicus/line-us/dist/line-us.min.js"></script>
+<script
+  type="text/javascript"
+  src="https://unpkg.com/@beardicus/line-us/dist/line-us.min.js"
+></script>
 ```
 
 ## Setup
@@ -79,11 +82,11 @@ This library uses a websocket connection to communicate with your Line-us machin
 
 ### `.connect()`
 
-Connects to the Line-us machine's websocket. This is done automatically unless `autoConnect` is set to `false` when creating the `LineUs` instance.
+Connects to the Line-us machine's websocket. This is done automatically unless `autoConnect` is set to `false` when creating the `LineUs` instance. Returns a promise that resolves when the connection is established.
 
 ### `.disconnect()`
 
-Closes the websocket connection and stops the queue.
+Closes the websocket connection and stops and clears the queue. Returns a promise that resolves when the websocket is closed.
 
 ### `.send({cmd})`
 
